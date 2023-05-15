@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String     @id @default(uuid())
+  name        String     
+  email       String     @unique
+  password    String
+  phone       String?
+  reset_token String?
+
+  contents    Content[]
+  purchases   Purchase[]
+
+  @@map("tb_users")
+}
+
+model Content {
+  id          String     @id @default(uuid())
+  banner      String?
+  title       String
+  description String?
+  url         String?
+  author      String?
+  isPublic    Boolean
+  creator     User       @relation(fields: [creatorId], references: [id])
+  creatorId   String
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  deleted_at  DateTime?
+
+  contentTags  ContentTag[]
+  purchases Purchase[]
+
+  @@map("tb_contents")
+}
+
+model Purchase {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  content   Content  @relation(fields: [contentId], references: [id])
+  contentId String
+  like      Boolean
+
+  @@map("tb_purchases")
+}
+
+model Tag {
+  id   String     @id @default(uuid())
+  name String
+  
+  contentTags  ContentTag[]
+
+  @@map("tb_tags")
+}
+
+model ContentTag {
+  content     Content  @relation(fields: [contentId], references: [id])
+  contentId   String
+  tag         Tag  @relation(fields: [tagId], references: [id])
+  tagId       String
+
+  @@id([contentId, tagId])
+  @@map("tb_contentTags")
+}
