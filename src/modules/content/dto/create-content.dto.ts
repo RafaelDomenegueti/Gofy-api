@@ -13,7 +13,7 @@ export class CreateContentDto {
 
   @IsString()
   @IsNotEmpty()
-  @Length(3, 40)
+  @Length(3, 200)
   title: string;
 
   @IsNotEmpty()

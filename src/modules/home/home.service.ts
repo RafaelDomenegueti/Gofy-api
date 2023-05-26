@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import ContentRepository from 'src/shared/repositories/content/content.repository';
 import TagRepository from 'src/shared/repositories/tag/tag.repository';
-import { tags } from '../../../data/tags';
 
 @Injectable()
 export class HomeService {
@@ -31,51 +30,45 @@ export class HomeService {
       take: 3,
     });
 
-    const data = [];
-
-    for (const tag of tags) {
-      const contents: any = await this.tagRepository.findAll({
-        where: {
-          id: tag.id,
+    const contents: any = await this.tagRepository.findAll({
+      where: {
+        contentTags: {
+          some: {},
         },
-        include: {
-          contentTags: {
-            include: {
-              tag: false,
-              content: {
-                select: {
-                  id: true,
-                  title: true,
-                  banner: true,
-                },
+      },
+      include: {
+        contentTags: {
+          include: {
+            tag: false,
+            content: {
+              select: {
+                id: true,
+                title: true,
+                banner: true,
               },
             },
-            orderBy: {
-              content: {
-                purchases: {
-                  _count: 'desc',
-                },
+          },
+          orderBy: {
+            content: {
+              purchases: {
+                _count: 'desc',
               },
             },
-            take: 10,
           },
-          _count: {
-            select: {
-              contentTags: true,
-            },
+          take: 10,
+        },
+        _count: {
+          select: {
+            contentTags: true,
           },
         },
-      });
-
-      if (contents[0].contentTags.length > 0) {
-        data.push(...contents);
-      }
-    }
+      },
+    });
 
     return {
       banners,
       body: {
-        data,
+        data: contents,
       },
     };
   }

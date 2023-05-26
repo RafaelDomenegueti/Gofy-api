@@ -12,6 +12,7 @@ export class CommunityService {
           contains: search,
           mode: 'insensitive',
         },
+        isPublic: true,
       },
       take: 15,
     });
