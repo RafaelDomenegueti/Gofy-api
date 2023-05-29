@@ -16,6 +16,8 @@ export class ErrorExceptionFilter implements ExceptionFilter {
       });
     }
 
+    console.log(exception);
+
     return response.status(500).json({
       status: 'error',
       message: `Internal server error`,
