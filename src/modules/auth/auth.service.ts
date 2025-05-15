@@ -6,13 +6,21 @@ import { RegisterAuthDto } from './dto/register-auth.dto';
 import bcrypt from 'bcrypt';
 import UserRepository from 'src/shared/repositories/user/user.repository';
 import jwt from 'jsonwebtoken';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private jwtService: JwtService,
+  ) {}
 
   makeToken(id: string, email: string) {
     return jwt.sign({ id, email }, ENV.TOKEN_KEY, { expiresIn: '2h' });
+  }
+
+  makeRefreshToken(id: string, email: string) {
+    return jwt.sign({ id, email }, ENV.TOKEN_RESET_KEY, { expiresIn: '7d' });
   }
 
   async validateUser(email: string, password: string) {
@@ -47,8 +55,10 @@ export class AuthService {
     // Create token
     const token = this.makeToken(user.id, user.email);
 
+    const refreshToken = this.makeRefreshToken(user.id, user.email);
+
     // Return user props
-    return { token };
+    return { token, refreshToken };
   }
 
   async register(registerAuthDto: RegisterAuthDto) {
@@ -85,8 +95,21 @@ export class AuthService {
     // Create token
     const token = this.makeToken(user.id, user.email);
 
+    const refreshToken = this.makeRefreshToken(user.id, user.email);
+
     return {
       token,
+      refreshToken,
     };
+  }
+
+  async refreshToken(token: string) {
+    const payload = this.jwtService.verify(token, {
+      secret: ENV.TOKEN_RESET_KEY,
+    });
+
+    const newAccessToken = this.makeToken(payload.id, payload.email);
+
+    return { token: newAccessToken };
   }
 }
