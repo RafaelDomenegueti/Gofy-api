@@ -4,6 +4,7 @@ import ContentRepository from 'src/shared/repositories/content/content.repositor
 import TagRepository from 'src/shared/repositories/tag/tag.repository';
 import CloudinaryClientService from 'src/shared/services/CloudinaryClient/cloudinary-client.service';
 import { CreateContentDto } from './dto/create-content.dto';
+import ytdl from '@distube/ytdl-core';
 
 @Injectable()
 export class ContentService {
@@ -35,10 +36,13 @@ export class ContentService {
     const { banner, title, description, url, author, isPublic, tags } =
       createContentDto;
 
-    const uploadedImage = await this.cloudinaryClient.send(banner);
+    let uploadedImage;
+    if (banner) {
+      uploadedImage = await this.cloudinaryClient.send(banner);
+    }
 
     const contentCreated = await this.contentRepository.create({
-      banner: uploadedImage.url,
+      banner: uploadedImage?.url,
       title,
       description,
       url,
@@ -59,5 +63,27 @@ export class ContentService {
     });
 
     return contentCreated;
+  }
+
+  async getContentInfo(url?: string, origin?: string) {
+    if (!url) {
+      throw new AppError('Url is required');
+    }
+
+    if (origin === 'youtube') {
+      const info: any = await ytdl.getInfo(url);
+
+      return {
+        videoUrl: info.videoUrl,
+        thumbnails: info.videoDetails.thumbnails,
+        category: info.videoDetails.category,
+        uploadDate: info.videoDetails.uploadDate,
+        lengthSeconds: info.videoDetails.lengthSeconds,
+        title: info.videoDetails.title,
+        description: info.videoDetails.description,
+      };
+    }
+
+    throw new AppError("Sorry! We don't support this origin");
   }
 }

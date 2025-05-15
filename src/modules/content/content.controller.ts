@@ -6,6 +6,7 @@ import {
   Post,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ContentService } from './content.service';
@@ -15,6 +16,19 @@ import { CreateContentDto } from './dto/create-content.dto';
 @Controller('content')
 export class ContentController {
   constructor(private readonly contentService: ContentService) {}
+
+  @Get('info')
+  async getContentInfo(
+    @Query('url') url?: string,
+    @Query('origin') origin?: string,
+  ) {
+    try {
+      const content = await this.contentService.getContentInfo(url, origin);
+      return content;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   @Get('tags')
   async getTags() {
