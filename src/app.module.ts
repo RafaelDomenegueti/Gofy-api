@@ -13,6 +13,7 @@ import { TagRepositoryModule } from './shared/repositories/tag/tag.module';
 import { UserRepositoryModule } from './shared/repositories/user/user.module';
 import { PurchaseModule } from './modules/purchase/purchase.module';
 import { CloudinaryClientModule } from './shared/services/CloudinaryClient/cloudinary-client.module';
+import { AudioModule } from 'src/modules/audio/audio.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CloudinaryClientModule } from './shared/services/CloudinaryClient/cloud
     AuthModule,
     CommunityModule,
     ContentModule,
+    AudioModule,
     PurchaseModule,
     MailModule,
     PrismaModule,

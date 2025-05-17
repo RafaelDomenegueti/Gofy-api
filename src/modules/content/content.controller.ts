@@ -6,33 +6,15 @@ import {
   Post,
   UseGuards,
   Request,
-  Query,
-  Res,
-  BadRequestException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ContentService } from './content.service';
 import { CreateContentDto } from './dto/create-content.dto';
-import { Response } from 'express';
-import ytdl from '@distube/ytdl-core';
 
 @UseGuards(JwtAuthGuard)
 @Controller('content')
 export class ContentController {
   constructor(private readonly contentService: ContentService) {}
-
-  @Get('info')
-  async getContentInfo(
-    @Query('url') url?: string,
-    @Query('origin') origin?: string,
-  ) {
-    try {
-      const content = await this.contentService.getContentInfo(url, origin);
-      return content;
-    } catch (error) {
-      throw error;
-    }
-  }
 
   @Get('tags')
   async getTags() {
@@ -41,32 +23,6 @@ export class ContentController {
       return tags;
     } catch (error) {
       throw error;
-    }
-  }
-
-  @Get('extract-audio')
-  async extractAudio(@Query('url') url: string, @Res() res: Response) {
-    if (!url) {
-      throw new BadRequestException('URL is required');
-    }
-
-    try {
-      const isValid = ytdl.validateURL(url);
-      if (!isValid) {
-        throw new BadRequestException('Invalid YouTube URL');
-      }
-
-      res.setHeader('Content-Type', 'audio/mpeg');
-      res.setHeader('Content-Disposition', 'inline; filename=audio.mp3');
-
-      const audioStream = ytdl(url, {
-        filter: 'audioonly',
-        quality: 'highestaudio',
-      });
-
-      audioStream.pipe(res, { end: true });
-    } catch (error) {
-      throw new BadRequestException('Erro ao baixar ou processar o vídeo');
     }
   }
 
