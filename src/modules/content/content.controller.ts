@@ -14,8 +14,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ContentService } from './content.service';
 import { CreateContentDto } from './dto/create-content.dto';
 import { Response } from 'express';
-import * as ffmpeg from 'fluent-ffmpeg';
-import axios from 'axios';
+import ytdl from '@distube/ytdl-core';
 
 @UseGuards(JwtAuthGuard)
 @Controller('content')
@@ -52,23 +51,20 @@ export class ContentController {
     }
 
     try {
-      const response = await axios.get(url, { responseType: 'stream' });
+      const isValid = ytdl.validateURL(url);
+      if (!isValid) {
+        throw new BadRequestException('Invalid YouTube URL');
+      }
 
       res.setHeader('Content-Type', 'audio/mpeg');
       res.setHeader('Content-Disposition', 'inline; filename=audio.mp3');
 
-      ffmpeg(response.data)
-        .inputFormat('mp4')
-        .noVideo()
-        .audioCodec('libmp3lame')
-        .format('mp3')
-        .on('error', (err) => {
-          console.error('Erro ao processar áudio:', err.message);
-          if (!res.headersSent) {
-            res.status(500).send('Erro ao processar o áudio');
-          }
-        })
-        .pipe(res, { end: true });
+      const audioStream = ytdl(url, {
+        filter: 'audioonly',
+        quality: 'highestaudio',
+      });
+
+      audioStream.pipe(res, { end: true });
     } catch (error) {
       throw new BadRequestException('Erro ao baixar ou processar o vídeo');
     }
