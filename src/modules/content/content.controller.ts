@@ -6,10 +6,12 @@ import {
   Post,
   UseGuards,
   Request,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ContentService } from './content.service';
-import { CreateContentDto } from './dto/create-content.dto';
+import { CreateContentDto, contentSchema } from './schema/content.schema';
+import { validate } from '../../utils/zod-validator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('content')
@@ -37,18 +39,18 @@ export class ContentController {
   }
 
   @Post()
-  async create(
-    @Body() createContentDto: CreateContentDto,
-    @Request() request: any,
-  ) {
+  async create(@Body() contentData: CreateContentDto, @Request() request: any) {
     try {
+      const validatedData = validate(contentSchema, contentData);
       const content = await this.contentService.create(
-        createContentDto,
+        validatedData,
         request.user,
       );
       return content;
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
       throw error;
     }
   }

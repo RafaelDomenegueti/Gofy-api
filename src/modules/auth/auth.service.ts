@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { AppError } from 'src/shared/errors/AppError';
-import { LoginAuthDto } from './dto/login-auth.dto';
 import { ENV } from 'src/utils/env';
-import { RegisterAuthDto } from './dto/register-auth.dto';
 import bcrypt from 'bcrypt';
 import UserRepository from 'src/shared/repositories/user/user.repository';
 import jwt from 'jsonwebtoken';
 import { JwtService } from '@nestjs/jwt';
+import { RegisterAuthDto } from 'src/modules/auth/schema/register.schema';
+import { LoginAuthDto } from 'src/modules/auth/schema/login.schema';
 
 @Injectable()
 export class AuthService {

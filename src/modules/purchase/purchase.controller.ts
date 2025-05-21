@@ -6,10 +6,15 @@ import {
   Param,
   UseGuards,
   Request,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CreatePurchaseDto } from './dto/create-purchase.dto';
+import {
+  CreatePurchaseDto,
+  createPurchaseSchema,
+} from './schema/purchase.schema';
 import { PurchaseService } from './purchase.service';
+import { validate } from '../../utils/zod-validator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('purchase')
@@ -40,17 +45,21 @@ export class PurchaseController {
 
   @Post()
   async create(
-    @Body() createPurchaseDto: CreatePurchaseDto,
+    @Body() purchaseData: CreatePurchaseDto,
     @Request() request: any,
   ) {
     try {
+      const validatedData = validate(createPurchaseSchema, purchaseData);
       const purchaseCreated = await this.purchaseService.create(
-        createPurchaseDto,
+        validatedData,
         request.user,
       );
 
       return purchaseCreated;
     } catch (error) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
       throw error;
     }
   }

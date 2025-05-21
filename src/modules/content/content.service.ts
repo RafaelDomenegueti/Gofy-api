@@ -3,8 +3,8 @@ import { AppError } from 'src/shared/errors/AppError';
 import ContentRepository from 'src/shared/repositories/content/content.repository';
 import TagRepository from 'src/shared/repositories/tag/tag.repository';
 import CloudinaryClientService from 'src/shared/services/CloudinaryClient/cloudinary-client.service';
-import { CreateContentDto } from './dto/create-content.dto';
 import ytdl from '@distube/ytdl-core';
+import { CreateContentDto } from 'src/modules/content/schema/content.schema';
 
 @Injectable()
 export class ContentService {
@@ -36,13 +36,21 @@ export class ContentService {
     const { banner, title, description, url, author, isPublic, tags } =
       createContentDto;
 
-    let uploadedImage;
+    let uploadedImageUrl: string | undefined;
+
     if (banner) {
-      uploadedImage = await this.cloudinaryClient.send(banner);
+      const isBase64 = banner.startsWith('data:image');
+
+      if (isBase64) {
+        const uploadResult = await this.cloudinaryClient.send(banner);
+        uploadedImageUrl = uploadResult?.url;
+      } else {
+        uploadedImageUrl = banner;
+      }
     }
 
     const contentCreated = await this.contentRepository.create({
-      banner: uploadedImage?.url,
+      banner: uploadedImageUrl,
       title,
       description,
       url,

@@ -3,8 +3,7 @@ import { AppError } from 'src/shared/errors/AppError';
 import ContentRepository from 'src/shared/repositories/content/content.repository';
 import PurchaseRepository from 'src/shared/repositories/purchase/purchase.repository';
 import UserRepository from 'src/shared/repositories/user/user.repository';
-import { CreatePurchaseDto } from './dto/create-purchase.dto';
-
+import { CreatePurchaseDto } from './schema/purchase.schema';
 @Injectable()
 export class PurchaseService {
   constructor(
