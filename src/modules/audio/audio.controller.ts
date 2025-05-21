@@ -8,6 +8,7 @@ import {
 import { AudioService } from './audio.service';
 import { Response } from 'express';
 import ytdl from '@distube/ytdl-core';
+import { ENV } from 'src/utils/env';
 
 @Controller('audio')
 export class AudioController {
@@ -44,10 +45,18 @@ export class AudioController {
       res.setHeader('Accept-Ranges', 'bytes'); // permite seek no player
       // Nota: Audio-Length é difícil definir em streaming direto, ok sem
 
+      const agent = ytdl.createAgent(ENV.YOUTUBE_COOKIES);
+
       const audioStream = ytdl(url, {
         filter: 'audioonly',
         quality: 'highestaudio',
-        highWaterMark: 1 << 25, // aumenta buffer para evitar travamentos
+        agent,
+        requestOptions: {
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
+        },
       });
 
       audioStream.on('error', (err) => {
