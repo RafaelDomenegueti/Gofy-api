@@ -1,6 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { Response } from 'express';
 import { AppError } from 'src/shared/errors/AppError';
+import { ZodError } from 'zod';
 
 @Catch()
 export class ErrorExceptionFilter implements ExceptionFilter {
@@ -13,6 +14,14 @@ export class ErrorExceptionFilter implements ExceptionFilter {
         success: false,
         message: exception.message,
         data: exception.data,
+      });
+    }
+
+    if (exception instanceof ZodError) {
+      return response.status(400).json({
+        success: false,
+        message: exception.message,
+        data: exception.errors,
       });
     }
 
