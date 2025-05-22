@@ -14,5 +14,6 @@ export const ENV = {
   CLOUDINARY_CLIENT_ID: process.env.CLOUDINARY_CLIENT_ID || '',
   CLOUDINARY_CLIENT_SECRET: process.env.CLOUDINARY_CLIENT_SECRET || '',
   CLOUDINARY_NAME: process.env.CLOUDINARY_NAME || '',
+  YOUTUBE_PROXY: process.env.YOUTUBE_PROXY || '',
   YOUTUBE_COOKIES: JSON.parse(process.env.YOUTUBE_COOKIES || '[]'),
 };

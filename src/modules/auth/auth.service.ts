@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { AppError } from 'src/shared/errors/AppError';
 import { ENV } from 'src/utils/env';
@@ -7,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterAuthDto } from 'src/modules/auth/schema/register.schema';
 import { LoginAuthDto } from 'src/modules/auth/schema/login.schema';
+import { RefreshTokenDto } from 'src/modules/auth/schema/refresh-token.schema';
 
 @Injectable()
 export class AuthService {
@@ -103,13 +105,42 @@ export class AuthService {
     };
   }
 
-  async refreshToken(token: string) {
-    const payload = this.jwtService.verify(token, {
+  async refreshToken(refreshTokenDto: RefreshTokenDto) {
+    const payload = this.jwtService.verify(refreshTokenDto.refreshToken, {
       secret: ENV.TOKEN_RESET_KEY,
     });
 
-    const newAccessToken = this.makeToken(payload.id, payload.email);
+    const user = await this.userRepository.findOne({ id: payload.id });
 
-    return { token: newAccessToken };
+    if (!user) {
+      throw new AppError('User not found');
+    }
+
+    const { password, ...userWithoutPassword } = user;
+
+    const newAccessToken = this.makeToken(payload.id, payload.email);
+    const newRefreshToken = this.makeRefreshToken(payload.id, payload.email);
+
+    return {
+      token: newAccessToken,
+      refreshToken: newRefreshToken,
+      user: userWithoutPassword,
+      message: 'Tokens refreshed successfully',
+    };
+  }
+
+  async validateToken(user: any) {
+    const userFound = await this.userRepository.findOne({ id: user.id });
+
+    if (!userFound) {
+      throw new AppError('User not found');
+    }
+
+    const { password, ...userWithoutPassword } = userFound;
+
+    return {
+      user: userWithoutPassword,
+      message: 'Token is valid',
+    };
   }
 }

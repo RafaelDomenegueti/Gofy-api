@@ -45,7 +45,10 @@ export class AudioController {
       res.setHeader('Accept-Ranges', 'bytes'); // permite seek no player
       // Nota: Audio-Length é difícil definir em streaming direto, ok sem
 
-      const agent = ytdl.createAgent(ENV.YOUTUBE_COOKIES);
+      const agent = ytdl.createAgent(
+        // ENV.YOUTUBE_PROXY,
+        ENV.YOUTUBE_COOKIES,
+      );
 
       const audioStream = ytdl(url, {
         filter: 'audioonly',

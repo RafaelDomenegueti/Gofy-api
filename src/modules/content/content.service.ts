@@ -33,24 +33,11 @@ export class ContentService {
   }
 
   async create(createContentDto: CreateContentDto, user: any) {
-    const { banner, title, description, url, author, isPublic, tags } =
+    const { title, description, url, author, isPublic, tags } =
       createContentDto;
 
-    let uploadedImageUrl: string | undefined;
-
-    if (banner) {
-      const isBase64 = banner.startsWith('data:image');
-
-      if (isBase64) {
-        const uploadResult = await this.cloudinaryClient.send(banner);
-        uploadedImageUrl = uploadResult?.url;
-      } else {
-        uploadedImageUrl = banner;
-      }
-    }
-
     const contentCreated = await this.contentRepository.create({
-      banner: uploadedImageUrl,
+      banner: null,
       title,
       description,
       url,

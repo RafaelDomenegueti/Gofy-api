@@ -51,6 +51,7 @@
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "proxy-agent": "^6.5.0",
     "reflect-metadata": "^0.1.13",
     "zod": "^3.25.17"
   },

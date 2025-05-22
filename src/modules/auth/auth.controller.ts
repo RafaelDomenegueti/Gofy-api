@@ -1,8 +1,18 @@
-import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  BadRequestException,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginAuthDto, loginSchema } from './schema/login.schema';
 import { RegisterAuthDto, registerSchema } from './schema/register.schema';
 import { validate } from '../../utils/zod-validator';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { User } from './decorators/user.decorator';
+import { RefreshTokenDto } from 'src/modules/auth/schema/refresh-token.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -35,7 +45,13 @@ export class AuthController {
   }
 
   @Post('/refresh')
-  async refresh(@Body('refreshToken') refreshToken: string) {
-    return this.authService.refreshToken(refreshToken);
+  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authService.refreshToken(refreshTokenDto);
+  }
+
+  @Get('/validate-token')
+  @UseGuards(JwtAuthGuard)
+  async validateToken(@User() user: any) {
+    return this.authService.validateToken(user);
   }
 }
