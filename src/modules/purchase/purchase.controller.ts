@@ -7,6 +7,7 @@ import {
   UseGuards,
   Request,
   BadRequestException,
+  Delete,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
@@ -25,6 +26,17 @@ export class PurchaseController {
   async get(@Request() request: any) {
     try {
       const purchase = await this.purchaseService.get(request.user);
+
+      return purchase;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Delete('/cancel/:id')
+  async cancel(@Param('id') id: string, @Request() request: any) {
+    try {
+      const purchase = await this.purchaseService.cancel(id, request.user);
 
       return purchase;
     } catch (error) {

@@ -39,4 +39,12 @@ export default class PurchaseRepository {
 
     return PurchaseUpdated;
   }
+
+  async delete(where: Prisma.PurchaseWhereUniqueInput) {
+    const purchaseCanceled = await this.prisma.purchase.delete({
+      where,
+    });
+
+    return purchaseCanceled;
+  }
 }

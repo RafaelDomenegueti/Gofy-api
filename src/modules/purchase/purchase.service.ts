@@ -82,6 +82,27 @@ export class PurchaseService {
     return purchaseCreated;
   }
 
+  async cancel(id: string, user: any) {
+    const purchase = await this.purchaseRepository.findOne({
+      id,
+      userId: user.id,
+    });
+
+    if (!purchase) {
+      throw new AppError('Purchase not found');
+    }
+
+    if (purchase.userId !== user.id) {
+      throw new AppError('user id mismatch');
+    }
+
+    const purchaseCanceled = await this.purchaseRepository.delete({
+      id: purchase.id,
+    });
+
+    return purchaseCanceled;
+  }
+
   async addLike(id: string, user: any) {
     const purchase = await this.purchaseRepository.findOne({
       contentId: id,
