@@ -50,6 +50,8 @@ export class AuthService {
       loginAuthDto.password,
     );
 
+    const { password, ...userWithoutPassword } = user;
+
     if (!user) {
       throw new AppError('User not found');
     }
@@ -60,7 +62,7 @@ export class AuthService {
     const refreshToken = this.makeRefreshToken(user.id, user.email);
 
     // Return user props
-    return { token, refreshToken };
+    return { token, refreshToken, user: userWithoutPassword };
   }
 
   async register(registerAuthDto: RegisterAuthDto) {
@@ -94,6 +96,8 @@ export class AuthService {
       password: encryptedPassword,
     });
 
+    const { password, ...userWithoutPassword } = user;
+
     // Create token
     const token = this.makeToken(user.id, user.email);
 
@@ -102,6 +106,7 @@ export class AuthService {
     return {
       token,
       refreshToken,
+      user: userWithoutPassword,
     };
   }
 
