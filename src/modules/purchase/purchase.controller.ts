@@ -33,10 +33,13 @@ export class PurchaseController {
     }
   }
 
-  @Delete('/cancel/:id')
-  async cancel(@Param('id') id: string, @Request() request: any) {
+  @Delete('/cancel/:contentId')
+  async cancel(@Param('contentId') contentId: string, @Request() request: any) {
     try {
-      const purchase = await this.purchaseService.cancel(id, request.user);
+      const purchase = await this.purchaseService.cancel(
+        contentId,
+        request.user,
+      );
 
       return purchase;
     } catch (error) {

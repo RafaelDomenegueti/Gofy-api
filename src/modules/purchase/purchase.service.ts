@@ -82,9 +82,9 @@ export class PurchaseService {
     return purchaseCreated;
   }
 
-  async cancel(id: string, user: any) {
+  async cancel(contentId: string, user: any) {
     const purchase = await this.purchaseRepository.findOne({
-      id,
+      contentId,
       userId: user.id,
     });
 
