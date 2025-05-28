@@ -1,4 +1,9 @@
-import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { AppError } from 'src/shared/errors/AppError';
 import { ZodError } from 'zod';
@@ -22,6 +27,13 @@ export class ErrorExceptionFilter implements ExceptionFilter {
         success: false,
         message: exception.message,
         data: exception.errors,
+      });
+    }
+
+    if (exception instanceof UnauthorizedException) {
+      return response.status(401).json({
+        success: false,
+        message: exception.message,
       });
     }
 
