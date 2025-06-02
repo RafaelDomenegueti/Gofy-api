@@ -9,7 +9,11 @@ export const contentSchema = z.object({
     .string()
     .max(255, 'Description must be at most 255 characters')
     .optional(),
-  url: z.string().min(1, 'URL must be at least 1 character').optional(),
+  url: z
+    .string()
+    .min(1, 'URL must be at least 1 character')
+    .nullable()
+    .optional(),
   author: z
     .string()
     .min(3, 'Author must be at least 3 characters')
