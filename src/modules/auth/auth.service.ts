@@ -9,6 +9,8 @@ import { JwtService } from '@nestjs/jwt';
 import { RegisterAuthDto } from 'src/modules/auth/schema/register.schema';
 import { LoginAuthDto } from 'src/modules/auth/schema/login.schema';
 import { RefreshTokenDto } from 'src/modules/auth/schema/refresh-token.schema';
+import { ChangePasswordDto } from './schema/change-password.schema';
+import { EditProfileDto } from './schema/edit-profile.schema';
 
 @Injectable()
 export class AuthService {
@@ -146,6 +148,67 @@ export class AuthService {
     return {
       user: userWithoutPassword,
       message: 'Token is valid',
+    };
+  }
+
+  async changePassword(userId: string, changePasswordDto: ChangePasswordDto) {
+    const user = await this.userRepository.findOne({ id: userId });
+
+    if (!user) {
+      throw new AppError('User not found');
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      changePasswordDto.currentPassword,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new AppError('Current password is incorrect');
+    }
+
+    const encryptedPassword = await bcrypt.hash(
+      changePasswordDto.newPassword,
+      10,
+    );
+
+    await this.userRepository.update({
+      where: { id: userId },
+      data: { password: encryptedPassword },
+    });
+
+    return { message: 'Password changed successfully' };
+  }
+
+  async editProfile(userId: string, editProfileDto: EditProfileDto) {
+    const user = await this.userRepository.findOne({ id: userId });
+
+    if (!user) {
+      throw new AppError('User not found');
+    }
+
+    // If email is being changed, check if it's already in use
+    if (editProfileDto.email && editProfileDto.email !== user.email) {
+      const existingUser = await this.userRepository.findOne({
+        email: editProfileDto.email,
+      });
+
+      if (existingUser) {
+        throw new AppError('Email is already in use');
+      }
+    }
+
+    await this.userRepository.update({
+      where: { id: userId },
+      data: editProfileDto,
+    });
+
+    const updatedUser = await this.userRepository.findOne({ id: userId });
+    const { password, ...userWithoutPassword } = updatedUser;
+
+    return {
+      user: userWithoutPassword,
+      message: 'Profile updated successfully',
     };
   }
 }
