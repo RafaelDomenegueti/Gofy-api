@@ -74,9 +74,6 @@ export class AuthController {
       const validatedData = validate(changePasswordSchema, changePasswordData);
       return await this.authService.changePassword(user.id, validatedData);
     } catch (error) {
-      if (error instanceof Error) {
-        throw new BadRequestException(error.message);
-      }
       throw error;
     }
   }
@@ -91,9 +88,6 @@ export class AuthController {
       const validatedData = validate(editProfileSchema, editProfileData);
       return await this.authService.editProfile(user.id, validatedData);
     } catch (error) {
-      if (error instanceof Error) {
-        throw new BadRequestException(error.message);
-      }
       throw error;
     }
   }
