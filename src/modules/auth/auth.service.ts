@@ -39,24 +39,16 @@ export class AuthService {
   }
 
   async login(loginAuthDto: LoginAuthDto) {
-    // Validation
-    if (!loginAuthDto.email) {
-      throw new AppError('Email is required');
-    }
-    if (!loginAuthDto.password) {
-      throw new AppError('Password is required');
-    }
-
     const user = await this.validateUser(
       loginAuthDto.email,
       loginAuthDto.password,
     );
 
-    const { password, ...userWithoutPassword } = user;
-
     if (!user) {
-      throw new AppError('User not found');
+      throw new AppError('Invalid credentials');
     }
+
+    const { password, ...userWithoutPassword } = user;
 
     // Create token
     const token = this.makeToken(user.id, user.email);
@@ -68,18 +60,6 @@ export class AuthService {
   }
 
   async register(registerAuthDto: RegisterAuthDto) {
-    // Validation
-    if (!registerAuthDto.name) {
-      throw new AppError('Name is required');
-    }
-    if (!registerAuthDto.email) {
-      throw new AppError('Email is required');
-    }
-    if (!registerAuthDto.password) {
-      throw new AppError('Password is required');
-    }
-
-    // check if user already exist
     const oldUser = await this.userRepository.findOne({
       email: registerAuthDto.email,
     });

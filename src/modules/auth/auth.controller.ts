@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, UseGuards, Put } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  Put,
+  BadRequestException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginAuthDto, loginSchema } from './schema/login.schema';
 import { RegisterAuthDto, registerSchema } from './schema/register.schema';
@@ -25,6 +33,10 @@ export class AuthController {
       const validatedData = validate(loginSchema, loginData);
       return await this.authService.login(validatedData);
     } catch (error) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
+
       throw error;
     }
   }
@@ -35,6 +47,10 @@ export class AuthController {
       const validatedData = validate(registerSchema, registerData);
       return await this.authService.register(validatedData);
     } catch (error) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
+
       throw error;
     }
   }
